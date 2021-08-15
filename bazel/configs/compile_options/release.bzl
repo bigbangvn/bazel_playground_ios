@@ -1,0 +1,5 @@
+load(":defaults.bzl", "SWIFT_COMPILER_FLAGS")
+
+SWIFT_RELEASE_COMPILER_FLAGS = [
+  "-Osize",
+] + SWIFT_COMPILER_FLAGS

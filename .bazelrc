@@ -1,0 +1,62 @@
+build \
+  --compilation_mode=fastbuild \
+  --ios_minimum_os=11.0 \
+  --ios_simulator_device="iPhone 8" \
+  --ios_simulator_version=14.0 \
+  --verbose_failures \
+  --spawn_strategy=local \
+  --worker_sandboxing=false \
+  --strategy=SwiftCompile=local \
+  --xcode_version=12.0.1 \
+  --ios_multi_cpus=x86_64 \
+  --apple_platform_type=ios \
+  --collapse_duplicate_defines=true \
+  --features=relative_ast_path \
+  --features=oso_prefix_is_pwd \
+  --features=remap_xcode_path \
+  --action_env=ZERO_AR_DATE=1 \
+	  --action_env=PATH=/usr/bin:/bin \
+  --features=swift.cacheable_swiftmodules \
+  --swiftcopt=-Xfrontend --swiftcopt=-no-serialize-debugging-options \
+  --host_force_python=PY3 \
+  --swiftcopt=-index-ignore-system-modules \
+  --features=swift.no_generated_module_map \
+  --experimental_multi_threaded_digest \
+  --experimental_inmemory_dotd_files \
+  --features=swift.vfsoverlay
+
+# ZERO_AR_DATE Workaround: https://github.com/bazelbuild/bazel/issues/10886
+# https://bazelbuild.slack.com/archives/CD3QY5C2X/p1619708243080900?thread_ts=1619669551.080600&cid=CD3QY5C2X
+# TODO (bang): Upgrade to Bazel >= 3.7.1 that fixes remote-cache issue of local_config_cc/wrapped_clang https://github.com/bazelbuild/bazel/issues/10187
+build \
+  --action_env=BAZEL_IGNORE_SYSTEM_HEADERS_VERSIONS=1 \
+  --incompatible_strict_action_env=true \
+  --experimental_strict_action_env
+
+## Some other optimizations: https://speakerdeck.com/brentleyjones/using-bazel-for-ios-development?slide=27
+
+# Don't nest .app in .ipa
+build --define=apple.experimental.tree_artifact_outputs=1
+
+# Don't generate Objective-C Interface Headers
+# build --features=swift.no_generated_header
+
+# Enable Whole Module Optimization for all builds
+build \
+  --features=swift.opt_uses_wmo
+  --swiftcopt=-whole-module-optimization
+
+# LLDB, but also cachability
+build --features=debug_prefix_map_pwd_is_dot
+
+# Fast Swift compiles
+build --features=swift.use_global_module_cache
+
+
+# Config for debug version
+build:Debug \
+  --apple_generate_dsym \
+  --define=apple.compress_ipa=no \
+  --define=apple.package_swift_support=no \
+  --define=apple.add_debugger_entitlement=yes \
+  --define=apple.propagate_embedded_extra_outputs=yes

@@ -1,0 +1,5 @@
+3.7.2
+
+# TODO: upgrade Bazel to >= 3.7.1 fix cache miss due to "builtin_include_directory_paths" https://github.com/bazelbuild/bazel/issues/10187
+# We observed slow remote-cache on Bazel 3.7.1, 3.7.2
+# When upgrade to Bazel 3.7, we should also upgrade rules_apple to >= 0.21.2, rules_swift >= 0.18.0, rules_ios to commit with date close to rules_swift release-date
